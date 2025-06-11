@@ -1,0 +1,68 @@
+import RPi.GPIO as GPIO
+import time
+
+# === GPIO SETUP ===
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+
+# Servo Pins
+ARM_SERVO = 17     # Servo 1: Arm
+HAND_SERVO = 27    # Servo 2: Hand / Claw
+
+GPIO.setup(ARM_SERVO, GPIO.OUT)
+GPIO.setup(HAND_SERVO, GPIO.OUT)
+
+# Set up PWM at 50Hz
+arm_pwm = GPIO.PWM(ARM_SERVO, 50)
+hand_pwm = GPIO.PWM(HAND_SERVO, 50)
+
+arm_pwm.start(0)
+hand_pwm.start(0)
+
+# === Helper: Move a servo to specific angle ===
+def move_servo(pwm, angle, hold_time=0.5):
+    duty = 2 + (angle / 18)
+    pwm.ChangeDutyCycle(duty)
+    time.sleep(hold_time)
+    pwm.ChangeDutyCycle(0)
+
+# === Actions ===
+def test_servos():
+    print("Opening hand (claw)...")
+    move_servo(hand_pwm, 0)
+
+    print("Lowering arm...")
+    move_servo(arm_pwm, 30)
+
+    print("Closing hand (grabbing)...")
+    move_servo(hand_pwm, 90)
+
+    print("Lifting arm...")
+    move_servo(arm_pwm, 90)
+
+    print("Placing on top...")
+    move_servo(arm_pwm, 120)
+
+    print("Opening hand (releasing)...")
+    move_servo(hand_pwm, 0)
+
+    print("Retracting arm...")
+    move_servo(arm_pwm, 90)
+
+# === Cleanup ===
+def cleanup():
+    print("Stopping servos and cleaning up...")
+    arm_pwm.stop()
+    hand_pwm.stop()
+    GPIO.cleanup()
+
+# === Run Loop ===
+try:
+    while True:
+        test_servos()
+        print("Cycle complete. Repeating in 2 seconds...\n")
+        time.sleep(2)  # Wait before next cycle
+except KeyboardInterrupt:
+    print("Interrupted by user.")
+finally:
+    cleanup()
