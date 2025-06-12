@@ -1,0 +1,71 @@
+// Define motor control pins
+const int ENA = 14;  // PWM pin
+const int IN1 = 12;  // Direction pin 1
+const int IN2 = 13;  // Direction pin 2
+
+// PWM settings (ESP32-specific)
+const int pwmChannel = 0;
+const int pwmFrequency = 5000;
+const int pwmResolution = 8
+
+// Motor speed (0 - 255)
+const int motorSpeed = 180;  // Adjust as needed (180 is moderate speed)
+
+// Duration to run motor for opening/closing (milliseconds)
+const int runTime = 1000;  // 1 second (adjust depending on how long it takes to open/close)
+
+void setup() {
+  // Stop motor first
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  
+    // Initialize pins
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+
+  // Optional: Serial for debugging
+  Serial.begin(115200);
+
+  // Example usage
+  Serial.println("Opening gripper...");
+  openGripper();
+  delay(2000);  // Wait before closing
+
+  Serial.println("Closing gripper...");
+  closeGripper();
+
+  //control logic here 
+  void loop() {
+  Serial.println("Opening gripper...");
+  openGripper();
+  delay(2000);  // Wait 2 seconds
+
+  Serial.println("Closing gripper...");
+  closeGripper();
+  delay(2000);  // Wait 2 seconds
+}
+
+}
+
+void openGripper() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, motorSpeed);  // Run motor
+  delay(runTime);                // Keep it running
+  stopMotor();                   // Stop
+}
+
+void closeGripper() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  analogWrite(ENA, motorSpeed);
+  delay(runTime);
+  stopMotor();
+}
+
+void stopMotor() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+}
